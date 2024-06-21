@@ -1,10 +1,20 @@
 on:
   push:
     branches:
-      - dev
+      - master
+    paths:
+      - ".github/workflows/tests.yml"
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
   pull_request:
     branches:
-      - dev
+      - master
+    paths:
+      - ".github/workflows/tests.yml"
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
 
 name: Rust Testing and coverage
 
