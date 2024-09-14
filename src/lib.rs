@@ -19,20 +19,19 @@
 //! ```rust
 //! use electosim::methods::Method;
 //! use electosim::models::Candidacy;
-//!
-//! use electosim::SimpleElection;
+//! use electosim::election;
 //!
 //! fn main() {
-//!    let mut election = SimpleElection {
-//!         results: vec![
+//!    let mut election = election!(
+//!         vec![
 //!             Candidacy::new(2010, 9),
 //!             Candidacy::new(1018, 4),
 //!             Candidacy::new(86, 0),
 //!             Candidacy::new(77, 0),
 //!         ],
-//!         seats: 13,
-//!         method: Method::HAGENBASCHBISCHOFF,
-//!    };
+//!         13,
+//!         Method::HAGENBASCHBISCHOFF
+//!    );
 //!
 //!     election.compute().expect("Can not compute method");
 //!     election.results.iter().for_each(|c| println!("{:?}", c));
@@ -80,9 +79,21 @@ pub struct SimpleElection {
     pub seats: u16,
     /// The method used for the election.
     pub method: Method,
+    /// Electoral cutoff
+    pub cutoff: f32,
 }
 
 impl SimpleElection {
+    /// Creates a new `SimpleElection` struct.
+    pub fn new(results: Vec<Candidacy>, seats: u16, method: Method) -> Self {
+        SimpleElection {
+            results,
+            seats,
+            method,
+            cutoff: 0.0,
+        }
+    }
+
     /// Computes the election results using the specified method.
     ///
     /// # Arguments
@@ -98,6 +109,42 @@ impl SimpleElection {
     }
 }
 
+#[macro_export]
+macro_rules! election {
+    ($results:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: 0,
+            method: Method::DHONDT,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: Method::DHONDT,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr, $method:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: $method,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr, $method:expr, $cutoff:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: $method,
+            cutoff: $cutoff,
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,18 +152,32 @@ mod tests {
 
     #[test]
     fn test_simple_election() {
-        let mut election = SimpleElection {
-            results: vec![
+        let mut election = election!(
+            vec![
                 Candidacy::new(2010, 9),
                 Candidacy::new(1018, 4),
                 Candidacy::new(86, 0),
                 Candidacy::new(77, 0),
             ],
-            seats: 13,
-            method: Method::DHONDT,
-        };
+            13,
+            Method::DHONDT
+        );
 
         election.compute().unwrap();
         election.results.iter().for_each(|c| println!("{:?}", c));
+    }
+
+    #[test]
+    fn test_load_new_election() {
+        let _ = SimpleElection::new(
+            vec![
+                Candidacy::new(2010, 9),
+                Candidacy::new(1018, 4),
+                Candidacy::new(86, 0),
+                Candidacy::new(77, 0),
+            ],
+            13,
+            Method::DHONDT,
+        );
     }
 }
