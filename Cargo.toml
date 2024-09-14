@@ -1,6 +1,6 @@
 [package]
 name = "electosim"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Eduardo González Vaquero <edugonzalezvaq@gmail.com>"]
 description = "Library to compute electoral methods (as D'Hondt) and simulate elections"

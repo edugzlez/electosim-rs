@@ -8,6 +8,7 @@ use crate::{
     utils::{clear_results, compute_total_votes},
 };
 
+use std::cmp::min;
 struct RemainderResult {
     pub integer: u16,
     pub remainder: f32,
@@ -64,7 +65,7 @@ where
 
     remainders.iter().enumerate().for_each(|(idx, r)| {
         results[idx].set_seats(r.integer);
-        seats_left -= r.integer;
+        seats_left -= min(r.integer, seats_left);
     });
 
     for _ in 0..seats_left {
@@ -123,4 +124,27 @@ where
     compute_remainder_method(results, seats, |total_votes, seats| {
         (total_votes as f32 / (seats + 2) as f32).floor() + 1.0
     })
+}
+
+#[cfg(test)]
+pub mod tests {
+    use crate::*;
+
+    #[test]
+    fn test_bug_hagenbach_seats() {
+        let candidacies = vec![
+            Candidacy::new(600, 9),
+            Candidacy::new(31, 4),
+            Candidacy::new(32, 0),
+        ];
+
+        let seats = 1000;
+        let method = Method::HAGENBASCHBISCHOFF;
+        let cutoff = 0.1;
+
+        let mut ele = election![candidacies, seats, method, cutoff];
+
+        ele.compute().expect("Can not compute method");
+        ele.results.iter().for_each(|c| println!("{:?}", c));
+    }
 }
