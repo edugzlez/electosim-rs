@@ -10,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-electosim = "0.1.0"
+electosim = "0.2.0"
 ```
 
 or add it directly from crates.io:
@@ -38,7 +38,7 @@ fn main() {
     let method = Method::HAGENBASCHBISCHOFF;
     let cutoff = 0.1;
 
-    let mut ele = election!(candidacies, seats, method, cutoff);
+    let mut ele = election![candidacies, seats, method, cutoff];
 
     ele.compute().expect("Can not compute method");
     ele.results.iter().for_each(|c| println!("{:?}", c));
