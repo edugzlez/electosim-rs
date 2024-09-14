@@ -68,8 +68,10 @@ pub mod methods;
 pub mod models;
 pub mod utils;
 
+use interface::WithVotes;
 use methods::{get_method_function, Method};
 use models::Candidacy;
+use utils::clear_results;
 
 /// Represents a simple election.
 pub struct SimpleElection {
@@ -94,6 +96,10 @@ impl SimpleElection {
         }
     }
 
+    pub fn total_votes(&self) -> u32 {
+        self.results.iter().map(|c| c.get_votes()).sum()
+    }
+
     /// Computes the election results using the specified method.
     ///
     /// # Arguments
@@ -105,7 +111,21 @@ impl SimpleElection {
     /// Returns `Ok(())` if the computation is successful, otherwise returns an `Err` with an error message.
     pub fn compute(&mut self) -> Result<(), &str> {
         let fun = get_method_function(self.method);
-        fun(&mut self.results, self.seats)
+        let total_votes = self.total_votes() as f32;
+        let cutoff_votes = (total_votes * self.cutoff) as u32;
+        // compute_with_cutoff(fun, &mut self.results, self.seats, cutoff_votes)
+        clear_results(self.results.as_mut());
+
+        let mut filtered_results = self
+            .results
+            .iter_mut()
+            .filter(|c| c.get_votes() > cutoff_votes)
+            .map(|c| Box::new(c))
+            .collect::<Vec<_>>();
+
+        fun(&mut filtered_results, self.seats).unwrap();
+
+        Ok(())
     }
 }
 
@@ -147,6 +167,8 @@ macro_rules! election {
 
 #[cfg(test)]
 mod tests {
+    use interface::WithSeats;
+
     use super::*;
     use crate::models::Candidacy;
 
@@ -179,5 +201,21 @@ mod tests {
             13,
             Method::DHONDT,
         );
+    }
+
+    #[test]
+    fn test_with_cutoff() {
+        let mut res = election!(
+            vec![Candidacy::new(10, 0), Candidacy::new(1, 0),],
+            13,
+            Method::DHONDT,
+            0.1
+        );
+
+        res.compute().unwrap();
+
+        assert_eq!(res.results.len(), 2);
+        assert_eq!(res.results[0].get_seats(), 13);
+        assert_eq!(res.results[1].get_seats(), 0);
     }
 }
