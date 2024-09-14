@@ -19,20 +19,19 @@
 //! ```rust
 //! use electosim::methods::Method;
 //! use electosim::models::Candidacy;
-//!
-//! use electosim::SimpleElection;
+//! use electosim::election;
 //!
 //! fn main() {
-//!    let mut election = SimpleElection {
-//!         results: vec![
+//!    let mut election = election!(
+//!         vec![
 //!             Candidacy::new(2010, 9),
 //!             Candidacy::new(1018, 4),
 //!             Candidacy::new(86, 0),
 //!             Candidacy::new(77, 0),
 //!         ],
-//!         seats: 13,
-//!         method: Method::HAGENBASCHBISCHOFF,
-//!    };
+//!         13,
+//!         Method::HAGENBASCHBISCHOFF
+//!    );
 //!
 //!     election.compute().expect("Can not compute method");
 //!     election.results.iter().for_each(|c| println!("{:?}", c));
@@ -69,8 +68,10 @@ pub mod methods;
 pub mod models;
 pub mod utils;
 
+use interface::WithVotes;
 use methods::{get_method_function, Method};
 use models::Candidacy;
+use utils::clear_results;
 
 /// Represents a simple election.
 pub struct SimpleElection {
@@ -80,9 +81,25 @@ pub struct SimpleElection {
     pub seats: u16,
     /// The method used for the election.
     pub method: Method,
+    /// Electoral cutoff
+    pub cutoff: f32,
 }
 
 impl SimpleElection {
+    /// Creates a new `SimpleElection` struct.
+    pub fn new(results: Vec<Candidacy>, seats: u16, method: Method) -> Self {
+        SimpleElection {
+            results,
+            seats,
+            method,
+            cutoff: 0.0,
+        }
+    }
+
+    pub fn total_votes(&self) -> u32 {
+        self.results.iter().map(|c| c.get_votes()).sum()
+    }
+
     /// Computes the election results using the specified method.
     ///
     /// # Arguments
@@ -94,29 +111,111 @@ impl SimpleElection {
     /// Returns `Ok(())` if the computation is successful, otherwise returns an `Err` with an error message.
     pub fn compute(&mut self) -> Result<(), &str> {
         let fun = get_method_function(self.method);
-        fun(&mut self.results, self.seats)
+        let total_votes = self.total_votes() as f32;
+        let cutoff_votes = (total_votes * self.cutoff) as u32;
+        // compute_with_cutoff(fun, &mut self.results, self.seats, cutoff_votes)
+        clear_results(self.results.as_mut());
+
+        let mut filtered_results = self
+            .results
+            .iter_mut()
+            .filter(|c| c.get_votes() > cutoff_votes)
+            .map(|c| Box::new(c))
+            .collect::<Vec<_>>();
+
+        fun(&mut filtered_results, self.seats).unwrap();
+
+        Ok(())
     }
+}
+
+#[macro_export]
+macro_rules! election {
+    ($results:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: 0,
+            method: Method::DHONDT,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: Method::DHONDT,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr, $method:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: $method,
+            cutoff: 0.0,
+        }
+    };
+    ($results:expr, $seats:expr, $method:expr, $cutoff:expr) => {
+        SimpleElection {
+            results: $results,
+            seats: $seats,
+            method: $method,
+            cutoff: $cutoff,
+        }
+    };
 }
 
 #[cfg(test)]
 mod tests {
+    use interface::WithSeats;
+
     use super::*;
     use crate::models::Candidacy;
 
     #[test]
     fn test_simple_election() {
-        let mut election = SimpleElection {
-            results: vec![
+        let mut election = election!(
+            vec![
                 Candidacy::new(2010, 9),
                 Candidacy::new(1018, 4),
                 Candidacy::new(86, 0),
                 Candidacy::new(77, 0),
             ],
-            seats: 13,
-            method: Method::DHONDT,
-        };
+            13,
+            Method::DHONDT
+        );
 
         election.compute().unwrap();
         election.results.iter().for_each(|c| println!("{:?}", c));
+    }
+
+    #[test]
+    fn test_load_new_election() {
+        let _ = SimpleElection::new(
+            vec![
+                Candidacy::new(2010, 9),
+                Candidacy::new(1018, 4),
+                Candidacy::new(86, 0),
+                Candidacy::new(77, 0),
+            ],
+            13,
+            Method::DHONDT,
+        );
+    }
+
+    #[test]
+    fn test_with_cutoff() {
+        let mut res = election!(
+            vec![Candidacy::new(10, 0), Candidacy::new(1, 0),],
+            13,
+            Method::DHONDT,
+            0.1
+        );
+
+        res.compute().unwrap();
+
+        assert_eq!(res.results.len(), 2);
+        assert_eq!(res.results[0].get_seats(), 13);
+        assert_eq!(res.results[1].get_seats(), 0);
     }
 }

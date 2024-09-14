@@ -21,28 +21,27 @@ cargo add electosim
 
 ## Usage
 
-### With SimpleElection
+### Using macro `election!`
 
 ```rust
-use electosim::methods::Method;
-use electosim::models::Candidacy;
-
-use electosim::SimpleElection;
+use electosim::{ methods::Method, models::Candidacy, electosim::election };
 
 fn main() {
-   let mut election = SimpleElection {
-        results: vec![
-            Candidacy::new(2010, 9),
-            Candidacy::new(1018, 4),
-            Candidacy::new(86, 0),
-            Candidacy::new(77, 0),
-        ],
-        seats: 13,
-        method: Method::HAGENBASCHBISCHOFF,
-   };
+    let candidacies = vec![
+        Candidacy::new(2010, 9),
+        Candidacy::new(1018, 4),
+        Candidacy::new(86, 0),
+        Candidacy::new(77, 0),
+    ];
 
-    election.compute().expect("Can not compute method");
-    election.results.iter().for_each(|c| println!("{:?}", c));
+    let seats = 13;
+    let method = Method::HAGENBASCHBISCHOFF;
+    let cutoff = 0.1;
+
+    let mut ele = election!(candidacies, seats, method, cutoff);
+
+    ele.compute().expect("Can not compute method");
+    ele.results.iter().for_each(|c| println!("{:?}", c));
 }
 ```
 
