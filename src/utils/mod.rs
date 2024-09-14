@@ -89,32 +89,36 @@ where
     results.iter().map(|x| x.get_seats()).sum()
 }
 
-#[test]
-fn listing_candidacy() {
-    let candidacies = vec![
-        crate::models::Candidacy::new(2010, 9),
-        crate::models::Candidacy::new(1018, 4),
-        crate::models::Candidacy::new(86, 0),
-        crate::models::Candidacy::new(77, 0),
-    ];
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn listing_candidacy() {
+        let candidacies = vec![
+            crate::models::Candidacy::new(2010, 9),
+            crate::models::Candidacy::new(1018, 4),
+            crate::models::Candidacy::new(86, 0),
+            crate::models::Candidacy::new(77, 0),
+        ];
 
-    assert_eq!(compute_total_votes(&candidacies), 3191);
-    assert_eq!(compute_total_seats(&candidacies), 13);
-}
+        assert_eq!(compute_total_votes(&candidacies), 3191);
+        assert_eq!(compute_total_seats(&candidacies), 13);
+    }
 
-#[test]
-fn clearing_results() {
-    let mut candidacies = vec![
-        crate::models::Candidacy::new(2010, 9),
-        crate::models::Candidacy::new(1018, 4),
-        crate::models::Candidacy::new(86, 0),
-        crate::models::Candidacy::new(77, 0),
-    ];
+    #[test]
+    fn clearing_results() {
+        let mut candidacies = vec![
+            crate::models::Candidacy::new(2010, 9),
+            crate::models::Candidacy::new(1018, 4),
+            crate::models::Candidacy::new(86, 0),
+            crate::models::Candidacy::new(77, 0),
+        ];
 
-    clear_results(&mut candidacies);
+        clear_results(&mut candidacies);
 
-    assert_eq!(candidacies[0].get_seats(), 0);
-    assert_eq!(candidacies[1].get_seats(), 0);
-    assert_eq!(candidacies[2].get_seats(), 0);
-    assert_eq!(candidacies[3].get_seats(), 0);
+        assert_eq!(candidacies[0].get_seats(), 0);
+        assert_eq!(candidacies[1].get_seats(), 0);
+        assert_eq!(candidacies[2].get_seats(), 0);
+        assert_eq!(candidacies[3].get_seats(), 0);
+    }
 }
