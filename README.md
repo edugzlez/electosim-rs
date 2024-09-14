@@ -24,14 +24,14 @@ cargo add electosim
 ### Using macro `election!`
 
 ```rust
-use electosim::{ methods::Method, models::Candidacy, electosim::election };
+use electosim::*;
 
 fn main() {
     let candidacies = vec![
-        Candidacy::new(2010, 9),
-        Candidacy::new(1018, 4),
-        Candidacy::new(86, 0),
-        Candidacy::new(77, 0),
+        candidacy!(2010, 9),
+        candidacy!(1018, 4),
+        candidacy!(86, 0),
+        candidacy!(77, 0),
     ];
 
     let seats = 13;
@@ -48,15 +48,15 @@ fn main() {
 ### Directly with the compute_ method
 
 ```rust
+use electosim::*;
 use electosim::methods::divisor::compute_dhondt;
-use electosim::models::Candidacy;
 
 fn main() {
    let mut candidacies = vec![
-        Candidacy::new(2010, 0),
-        Candidacy::new(1018, 0),
-        Candidacy::new(86, 0),
-        Candidacy::new(77, 0),
+        candidacy!(2010, 0),
+        candidacy!(1018, 0),
+        candidacy!(86, 0),
+        candidacy!(77, 0),
     ];
    compute_dhondt(&mut candidacies, 13).unwrap();
    candidacies.iter().for_each(|c| println!("{:?}", c));

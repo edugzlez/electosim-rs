@@ -125,3 +125,26 @@ where
         (total_votes as f32 / (seats + 2) as f32).floor() + 1.0
     })
 }
+
+#[cfg(test)]
+pub mod tests {
+    use crate::*;
+
+    #[test]
+    fn test_bug_hagenbach_seats() {
+        let candidacies = vec![
+            Candidacy::new(600, 9),
+            Candidacy::new(31, 4),
+            Candidacy::new(32, 0),
+        ];
+
+        let seats = 1000;
+        let method = Method::HAGENBASCHBISCHOFF;
+        let cutoff = 0.1;
+
+        let mut ele = election![candidacies, seats, method, cutoff];
+
+        ele.compute().expect("Can not compute method");
+        ele.results.iter().for_each(|c| println!("{:?}", c));
+    }
+}

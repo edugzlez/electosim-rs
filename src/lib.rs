@@ -17,20 +17,19 @@
 //! ## Usage
 //!
 //! ```rust
-//! use electosim::methods::Method;
-//! use electosim::models::Candidacy;
-//! use electosim::election;
+//! use electosim::*;
 //!
 //! fn main() {
 //!    let mut election = election!(
 //!         vec![
-//!             Candidacy::new(2010, 9),
-//!             Candidacy::new(1018, 4),
-//!             Candidacy::new(86, 0),
-//!             Candidacy::new(77, 0),
+//!             candidacy!(2010, 9),
+//!             candidacy!(1018, 4),
+//!             candidacy!(86, 0),
+//!             candidacy!(77, 0),
 //!         ],
 //!         13,
-//!         Method::HAGENBASCHBISCHOFF
+//!         Method::HAGENBASCHBISCHOFF,
+//!         0.1
 //!    );
 //!
 //!     election.compute().expect("Can not compute method");
@@ -44,15 +43,15 @@
 //! A method is a function with type `fn(&mut Vec<T>, u16) -> Result<(), &str>` where `T` is a type that implements the [`WithVotes`][interface::WithVotes] and [`WithSeats`][interface::WithSeats] traits.
 //! You can use the `compute_` functions directly if you want to compute the election results without using the [SimpleElection] struct. For example:
 //! ```rust
+//! use electosim::*;
 //! use electosim::methods::divisor::compute_dhondt;
-//! use electosim::models::Candidacy;
 //!
 //! fn main() {
 //!    let mut candidacies = vec![
-//!         Candidacy::new(2010, 0),
-//!         Candidacy::new(1018, 0),
-//!         Candidacy::new(86, 0),
-//!         Candidacy::new(77, 0),
+//!         candidacy!(2010, 0),
+//!         candidacy!(1018, 0),
+//!         candidacy!(86, 0),
+//!         candidacy!(77, 0),
 //!     ];
 //!
 //!    compute_dhondt(&mut candidacies, 13).unwrap();
@@ -64,14 +63,16 @@
 //! There are some implementations of the `compute_` functions in the [methods::divisor] (ex: D'hondt) and [methods::remainder] (ex: Hare) modules.
 
 pub mod interface;
+pub mod macros;
 pub mod methods;
 pub mod models;
 pub mod utils;
 
 use interface::WithVotes;
-use methods::{get_method_function, Method};
-use models::Candidacy;
-use utils::clear_results;
+use methods::get_method_function;
+pub use methods::Method;
+pub use models::Candidacy;
+use utils::clear_results; // Add this line to import the SimpleElection struct
 
 /// Represents a simple election.
 pub struct SimpleElection {
@@ -129,57 +130,20 @@ impl SimpleElection {
     }
 }
 
-#[macro_export]
-macro_rules! election {
-    ($results:expr) => {
-        SimpleElection {
-            results: $results,
-            seats: 0,
-            method: Method::DHONDT,
-            cutoff: 0.0,
-        }
-    };
-    ($results:expr, $seats:expr) => {
-        SimpleElection {
-            results: $results,
-            seats: $seats,
-            method: Method::DHONDT,
-            cutoff: 0.0,
-        }
-    };
-    ($results:expr, $seats:expr, $method:expr) => {
-        SimpleElection {
-            results: $results,
-            seats: $seats,
-            method: $method,
-            cutoff: 0.0,
-        }
-    };
-    ($results:expr, $seats:expr, $method:expr, $cutoff:expr) => {
-        SimpleElection {
-            results: $results,
-            seats: $seats,
-            method: $method,
-            cutoff: $cutoff,
-        }
-    };
-}
-
 #[cfg(test)]
 mod tests {
     use interface::WithSeats;
 
     use super::*;
-    use crate::models::Candidacy;
 
     #[test]
     fn test_simple_election() {
         let mut election = election!(
             vec![
-                Candidacy::new(2010, 9),
-                Candidacy::new(1018, 4),
-                Candidacy::new(86, 0),
-                Candidacy::new(77, 0),
+                candidacy!(2010, 9),
+                candidacy!(1018, 4),
+                candidacy!(86),
+                candidacy!(77),
             ],
             13,
             Method::DHONDT
@@ -193,10 +157,10 @@ mod tests {
     fn test_load_new_election() {
         let _ = SimpleElection::new(
             vec![
-                Candidacy::new(2010, 9),
-                Candidacy::new(1018, 4),
-                Candidacy::new(86, 0),
-                Candidacy::new(77, 0),
+                candidacy!(2010),
+                candidacy!(1018),
+                candidacy!(86),
+                candidacy!(77),
             ],
             13,
             Method::DHONDT,
@@ -206,7 +170,7 @@ mod tests {
     #[test]
     fn test_with_cutoff() {
         let mut res = election!(
-            vec![Candidacy::new(10, 0), Candidacy::new(1, 0),],
+            vec![candidacy!(10, 0), candidacy!(1, 0),],
             13,
             Method::DHONDT,
             0.1
