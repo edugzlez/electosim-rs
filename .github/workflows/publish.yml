@@ -3,7 +3,7 @@ on:
     tags:
       - "v*"
 
-name: Cargo Publish
+name: 📦 Cargo Publish
 
 jobs:
   publish:
@@ -11,14 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Set up Rust
+      - name: ⚡ Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: 🦀 Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: Publish
+      - name: 🚀 Publish
         run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
         env:
           CARGO_INCREMENTAL: 0

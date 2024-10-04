@@ -16,18 +16,18 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
 
-name: Rust Testing and coverage
+name: 🧪 Testing and coverage
 
 jobs:
   test:
-    name: Test
+    name: 🧪 Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🛒 Checkout repository
         uses: actions/checkout@v2
 
-      - name: Cache cargo registry
+      - name: ⚡ Cache
         uses: actions/cache@v2
         with:
           path: ~/.cargo
@@ -35,16 +35,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Install stable toolchain
+      - name: 🦀 Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
 
-      - name: Install tarpaulin
+      - name: ⬇️ Install tarpaulin
         run: cargo install cargo-tarpaulin
 
-      - name: Run cargo-tarpaulin
+      - name: ⬇️ Run cargo-tarpaulin
         uses: actions-rs/cargo@v1
         with:
           command: tarpaulin
@@ -52,7 +52,7 @@ jobs:
         env:
           CARGO_INCREMENTAL: 0
 
-      - name: Upload to codecov.io
+      - name: ⬆️ Upload to codecov.io
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
