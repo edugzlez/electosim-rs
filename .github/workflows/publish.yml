@@ -22,14 +22,3 @@ jobs:
         run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
         env:
           CARGO_INCREMENTAL: 0
-
-      - name: Build docs
-        run: cargo doc --no-deps
-        env:
-          CARGO_INCREMENTAL: 0
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          folder: target/doc
