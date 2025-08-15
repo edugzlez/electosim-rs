@@ -145,6 +145,5 @@ pub mod tests {
         let mut ele = election![candidacies, seats, method, cutoff];
 
         ele.compute().expect("Can not compute method");
-        ele.results.iter().for_each(|c| println!("{:?}", c));
     }
 }

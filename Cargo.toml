@@ -6,5 +6,3 @@ authors = ["Eduardo González Vaquero <edugonzalezvaq@gmail.com>"]
 description = "Library to compute electoral methods (as D'Hondt) and simulate elections"
 license = "MIT"
 repository = "https://github.com/edugzlez/electosim-rs"
-
-[dependencies]

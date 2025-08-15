@@ -66,18 +66,21 @@ pub mod interface;
 pub mod macros;
 pub mod methods;
 pub mod models;
+pub mod tree;
 pub mod utils;
 
+use crate::interface::WithSeats;
 use interface::WithVotes;
 use methods::get_method_function;
 pub use methods::Method;
 pub use models::Candidacy;
-use utils::clear_results; // Add this line to import the SimpleElection struct
+use utils::clear_results;
+// Add this line to import the SimpleElection struct
 
 /// Represents a simple election.
-pub struct SimpleElection {
+pub struct SimpleElection<T: WithSeats + WithVotes> {
     /// The results of the election.
-    pub results: Vec<Candidacy>,
+    pub results: Vec<T>,
     /// The number of seats available in the election.
     pub seats: u16,
     /// The method used for the election.
@@ -86,9 +89,12 @@ pub struct SimpleElection {
     pub cutoff: f32,
 }
 
-impl SimpleElection {
+impl<T> SimpleElection<T>
+where
+    T: WithSeats + WithVotes,
+{
     /// Creates a new `SimpleElection` struct.
-    pub fn new(results: Vec<Candidacy>, seats: u16, method: Method) -> Self {
+    pub fn new(results: Vec<T>, seats: u16, method: Method) -> Self {
         SimpleElection {
             results,
             seats,
@@ -150,7 +156,6 @@ mod tests {
         );
 
         election.compute().unwrap();
-        election.results.iter().for_each(|c| println!("{:?}", c));
     }
 
     #[test]
