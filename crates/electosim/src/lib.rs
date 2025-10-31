@@ -65,10 +65,10 @@
 pub mod interface;
 pub mod macros;
 pub mod methods;
+pub mod metrics;
 pub mod models;
 pub mod utils;
-
-use interface::WithVotes;
+pub use interface::WithVotes;
 use methods::get_method_function;
 pub use methods::Method;
 pub use models::Candidacy;

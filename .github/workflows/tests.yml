@@ -4,7 +4,7 @@ on:
       - master
     paths:
       - ".github/workflows/tests.yml"
-      - "src/**"
+      - "crates/**"
       - "Cargo.toml"
       - "Cargo.lock"
   pull_request:
@@ -12,7 +12,7 @@ on:
       - master
     paths:
       - ".github/workflows/tests.yml"
-      - "src/**"
+      - "crates/**"
       - "Cargo.toml"
       - "Cargo.lock"
 
@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: 🛒 Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: ⚡ Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -36,19 +36,13 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: 🦀 Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: ⬇️ Install tarpaulin
         run: cargo install cargo-tarpaulin
 
       - name: ⬇️ Run cargo-tarpaulin
-        uses: actions-rs/cargo@v1
-        with:
-          command: tarpaulin
-          args: --all --all-features --out Xml
+        run: cargo tarpaulin --workspace --all-features --out Xml
         env:
           CARGO_INCREMENTAL: 0
 

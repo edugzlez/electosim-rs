@@ -28,6 +28,6 @@ jobs:
           toolchain: stable
 
       - name: 🚀 Publish
-        run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
+        run: cargo publish  --package electosim --token ${{ secrets.CARGO_TOKEN }}
         env:
           CARGO_INCREMENTAL: 0
