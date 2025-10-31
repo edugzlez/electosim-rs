@@ -1,6 +1,6 @@
 # ElectoSIM ~ Rust
 
- [![crates.io](https://img.shields.io/crates/v/electosim.svg)](https://crates.io/crates/electosim) [![docs.rs](https://docs.rs/electosim/badge.svg)](https://docs.rs/electosim) [![codecov](https://codecov.io/gh/edugzlez/electosim-rs/graph/badge.svg?token=PZ76N09B8B)](https://codecov.io/gh/edugzlez/electosim-rs)
+[![crates.io](https://img.shields.io/crates/v/electosim.svg)](https://crates.io/crates/electosim) [![docs.rs](https://docs.rs/electosim/badge.svg)](https://docs.rs/electosim) [![codecov](https://codecov.io/gh/edugzlez/electosim-rs/graph/badge.svg?token=PZ76N09B8B)](https://codecov.io/gh/edugzlez/electosim-rs)
 
 ElectoSIM is a Rust library for simulating elections using different voting systems.
 
@@ -10,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-electosim = "0.2.1"
+electosim = "0.3.0"
 ```
 
 or add it directly from crates.io:
@@ -45,7 +45,7 @@ fn main() {
 }
 ```
 
-### Directly with the compute_ method
+### Directly with the compute\_ method
 
 ```rust
 use electosim::*;
